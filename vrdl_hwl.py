@@ -64,8 +64,6 @@ def load_split_train_test(datadir, valid_size=.2):
 
 
 trainloader, validloader = load_split_train_test(TRAINING_PATH, .2)
-print(trainloader.dataset.classes)
-print(validloader.dataset.classes)
 
 
 # In[4]:
@@ -119,7 +117,6 @@ for epoch in range(epochs):
         inputs, labels = inputs.to(device), labels.to(device)
         optimizer.zero_grad()
         output = model(inputs)
-        #logps = model.forward(inputs)
         loss = criterion(output, labels)
         loss.backward()
         optimizer.step()
@@ -133,7 +130,6 @@ for epoch in range(epochs):
                 for inputs, labels in validloader:
                     inputs, labels = inputs.to(device), labels.to(device)
                     output = model(inputs)
-                    #logps = model.forward(inputs)
                     batch_loss = criterion(output, labels)
                     valid_loss += batch_loss.item()
                     
@@ -149,44 +145,6 @@ for epoch in range(epochs):
                   f"valid accuracy: {accuracy/len(validloader):.3f}")
             running_loss = 0
             model.train()
-            
-#torch.save(model, 'aerialmodel.pth')
-
-
-# In[31]:
-
-
-# torch.save(model, 'model_93942')
-
-
-# In[21]:
-
-
-# torch.save(model, 'model_93750')
-
-
-# In[37]:
-
-
-# torch.save(model, 'model_94711')
-
-
-# In[49]:
-
-
-# torch.save(model, 'model_94903')
-
-
-# In[17]:
-
-
-# torch.save(model, 'model_95192')
-
-
-# In[26]:
-
-
-# torch.save(model, 'model_95480')
 
 
 # In[10]:
@@ -196,7 +154,6 @@ def image_loader(loader, image_name):
     image = Image.open(image_name)
     image = image.convert('RGB')
     image = loader(image).float()
-    #image = torch.tensor(image, requires_grad=True)
     image.clone().detach().requires_grad_(True)
     image = image.unsqueeze(0)
     return image
@@ -238,23 +195,13 @@ predict_df = pd.read_csv('sameple_submission.csv')
 
 for i in range(1040):
     print('{:04d}'.format(i))
-    img = image_loader(data_transforms, TESTING_PATH + '\image_'+'{:04d}'.format(i)+'.jpg')
+    img = image_loader(data_transforms, TESTING_PATH + '\image_' + '{:04d}'.format(i) + '.jpg')
     img = img.to(device)
-    #var_image = Variable(img)
 
     output = model(img)
-    prediction = int(torch.max(output.data, 1)[1])#.numpy())
-    #prediction = int(torch.max(F.softmax(output).cpu(), 1)[1].numpy())
+    prediction = int(torch.max(output.data, 1)[1])
     
-    print(prediction)
-    
-    predict_df.loc[i,'label'] = category[prediction]
+    predict_df.loc[i, 'label'] = category[prediction]
     
 predict_df.to_csv('out_resnext50_batch16.csv', index=False)
-
-
-# In[ ]:
-
-
-
 
